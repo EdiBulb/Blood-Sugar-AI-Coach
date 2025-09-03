@@ -14,10 +14,13 @@ app.use(cors({
   origin: function (origin, callback) {
     // ❗ Postman이나 Render 자체 요청은 origin이 undefined임
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
+  callback(null, true);
     } else {
-      callback(new Error('CORS blocked'));
+      // Render Health Check 같은 요청은 통과시킴 (undefined origin)
+      console.warn("CORS blocked request from:", origin);
+      callback(null, false);  // false로 응답만 하고 차단은 안 함
     }
+
   },
   credentials: true
 }));
