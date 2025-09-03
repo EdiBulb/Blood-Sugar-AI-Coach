@@ -4,8 +4,26 @@ import Database from "better-sqlite3";
 import OpenAI from "openai";
 
 const app = express();
-app.use(cors());
+
+// ✅ Netlify 도메인 허용 (배포된 주소)
+const allowedOrigins = [
+  'https://rad-concha-673e68.netlify.app', // 실제 배포된 Netlify 프론트 URL
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // ❗ Postman이나 Render 자체 요청은 origin이 undefined임
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS blocked'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
+
+
 
 // ---- SQLite ----
 const db = new Database("./data.db");
