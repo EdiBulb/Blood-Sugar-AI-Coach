@@ -1,47 +1,45 @@
 import { useMemo, useState } from "react";
-import axios from "axios";
+import apiClient from "../api/axios"; // ✅ 수정
 import { mgdlToMmol, statusClassByMmolFromMg } from "../utils";
 
-export default function LogsTable({ logs = [], onChanged }){
-  // 삭제 모드 & 선택 상태
+export default function LogsTable({ logs = [], onChanged }) {
   const [selectMode, setSelectMode] = useState(false);
-  const [selected, setSelected] = useState(new Set()); // id Set
+  const [selected, setSelected] = useState(new Set());
 
-  const rows = useMemo(()=> logs.map(r => ({
-    ...r,
-    mmol: mgdlToMmol(r.value)
-  })), [logs]);
+  const rows = useMemo(() =>
+    logs.map(r => ({
+      ...r,
+      mmol: mgdlToMmol(r.value)
+    })), [logs]
+  );
 
-  function toggleSelected(id){
+  function toggleSelected(id) {
     setSelected(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
 
-  async function onDeleteButton(){
-    if (!selectMode){
-      // 1) 일반 모드 → 삭제 모드 진입
+  async function onDeleteButton() {
+    if (!selectMode) {
       setSelectMode(true);
       setSelected(new Set());
       return;
     }
-    // 2) 삭제 모드 상태
-    if (selected.size > 0){
-      // 실제 삭제
+
+    if (selected.size > 0) {
       const ids = Array.from(selected);
-      await axios.delete("/api/logs", { data: { ids } });
+      await apiClient.delete("/logs", { data: { ids } }); // ✅ 수정
       setSelected(new Set());
       setSelectMode(false);
-      onChanged?.(); // 새로고침
+      onChanged?.(); // 새로고침 콜백
     } else {
-      // 선택 없음 → 완료(삭제 모드 해제)
       setSelectMode(false);
     }
   }
 
-  // 버튼 라벨 규칙
   const deleteLabel = !selectMode ? "삭제" : (selected.size > 0 ? "선택 삭제" : "완료");
 
   return (
@@ -68,14 +66,14 @@ export default function LogsTable({ logs = [], onChanged }){
           </tr>
         </thead>
         <tbody>
-          {rows.map((row)=>(
+          {rows.map((row) => (
             <tr key={row.id} className="border-b last:border-none align-top">
               {selectMode && (
                 <td className="py-2 pr-2">
                   <input
                     type="checkbox"
                     checked={selected.has(row.id)}
-                    onChange={()=>toggleSelected(row.id)}
+                    onChange={() => toggleSelected(row.id)}
                   />
                 </td>
               )}

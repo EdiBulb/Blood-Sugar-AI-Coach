@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "./api/axios";  // ✅ axios 대신 apiClient 사용
 import LogForm from "./components/LogForm";
 import CoachCard from "./components/CoachCard";
 import LogsTable from "./components/LogsTable";
@@ -26,7 +26,7 @@ export default function App(){
 
 
   async function fetchLogs(){
-    const { data } = await axios.get(`/api/logs?range=${range}`);
+    const { data } = await apiClient.get(`/logs?range=${range}`); // ✅ prefix 제거
     setLogs(data.items);
 
     const sorted = [...data.items].sort((a,b)=>a.date.localeCompare(b.date));

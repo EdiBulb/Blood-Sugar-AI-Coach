@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import apiClient from "../api/axios";
 
 export default function WeeklySummary(){
   const [loading, setLoading] = useState(false);
@@ -8,7 +9,7 @@ export default function WeeklySummary(){
   async function generate(){
     setLoading(true);
     try{
-      const { data } = await axios.get("/api/summary/weekly");
+      const { data } = await apiClient.get("/summary/weekly");
       setReport(data);
     } finally {
       setLoading(false);
